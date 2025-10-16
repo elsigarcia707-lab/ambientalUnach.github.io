@@ -90,7 +90,7 @@
   <nav>
     <a href="#registro">Registro</a>
     <a href="#contaminacion">Contaminación</a>
-     <a href="#tapa">consecuencias en tapachula</a>
+     <a href="#tapa">conciencia en tapachula</a>
     <a href="#acciones">Acciones</a>
     <a href="#importancia">importancia</a>
    
@@ -132,7 +132,7 @@
     <!-- SECCIÓN CONTAMINACIÓN -->
     <div class="card" id="contaminacion">
       <h2>🌍 Contaminación</h2>
-      <img src="img" width="270px" height="270px" alt="">
+      <img src="cuidado.jpeg" width="350px"; height="350px">
       <p>La contaminación es uno de los mayores problemas ambientales actuales. 
       Los desechos mal manejados contaminan el aire, el agua y el suelo, afectando la salud de millones de personas.</p>
       <ul>
@@ -161,7 +161,7 @@
      <!-- SECCIÓN MEJORAR -->
     <div class="card" id="acciones">
       <h2>🌟 Acciones</h2>
-       <img src="cuidado.jpeg" width="270px" height="270px" alt="">
+      
       <p>Aunque cada acción cuenta, aún podemos hacer más para cuidar el medio ambiente:</p>
       <ul>
         <li>Reducir el consumo de plásticos de un solo uso.</li>
@@ -178,7 +178,7 @@
     <!-- SECCIÓN IMPORTANCIA -->
     <div class="card" id="importancia">
       <h2>♻️ Importancia del Reciclaje</h2>
-       <img src="imagen.jpeg" width="270px" height="270px" alt="">
+      <img src="imagen.jpeg" width="350px"; height="350px">
       <p>Reciclar no es solo separar basura: es un compromiso con el futuro. 
       Con cada residuo reciclado reducimos la explotación de recursos naturales y alargamos la vida útil de los materiales.</p>
       <ul>
@@ -207,8 +207,8 @@
   </footer>
 
   <script>
-    // Datos iniciales
-    const datosBasura = {
+    // --- Cargar datos previos o iniciar en cero ---
+    const datosBasura = JSON.parse(localStorage.getItem("datosBasura")) || {
       Plástico: 0,
       Papel: 0,
       Metal: 0,
@@ -218,38 +218,26 @@
     let grafica = null;
     const infoSecciones = document.getElementById("infoSecciones");
 
-    // Evento de registro
+    // --- Evento al registrar basura ---
     document.getElementById("registroForm").addEventListener("submit", function(event) {
       event.preventDefault();
-      
-      let basura = document.getElementById("basura").value;
 
-      // Actualizar datos acumulados
+      const basura = document.getElementById("basura").value;
+
+      if (!basura) return; // evitar valores vacíos
+
+      // Aumentar el contador del tipo de basura
       datosBasura[basura]++;
 
-      // Mostrar TODA la información después del registro
+      // Guardar en localStorage
+      localStorage.setItem("datosBasura", JSON.stringify(datosBasura));
+
+      // Mostrar la sección después de registrar
       infoSecciones.classList.remove("oculto");
 
       // Crear o actualizar gráfica
       if (!grafica) {
-        const ctx = document.getElementById('graficaBasura').getContext('2d');
-        grafica = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: Object.keys(datosBasura),
-            datasets: [{
-              label: 'Cantidad de basura depositada',
-              data: Object.values(datosBasura),
-              backgroundColor: ['#42a5f5','#ffeb3b','#9e9e9e','#66bb6a']
-            }]
-          },
-          options: {
-            responsive: true,
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
+        crearGrafica();
       } else {
         grafica.data.datasets[0].data = Object.values(datosBasura);
         grafica.update();
@@ -258,7 +246,34 @@
       // Limpiar formulario
       document.getElementById("registroForm").reset();
     });
-  </script>
 
+    // --- Función para crear la gráfica ---
+    function crearGrafica() {
+      const ctx = document.getElementById('graficaBasura').getContext('2d');
+      grafica = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(datosBasura),
+          datasets: [{
+            label: 'Cantidad de basura depositada',
+            data: Object.values(datosBasura),
+            backgroundColor: ['#42a5f5', '#ffeb3b', '#9e9e9e', '#66bb6a']
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // --- Botón para reiniciar datos ---
+    document.getElementById("resetDatos").addEventListener("click", () => {
+      localStorage.removeItem("datosBasura");
+      location.reload();
+    });
+  </script>
 </body>
 </html>
